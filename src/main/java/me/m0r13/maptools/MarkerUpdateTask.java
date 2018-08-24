@@ -77,20 +77,28 @@ public class MarkerUpdateTask extends BukkitRunnable {
         }
         final JSONObject json = new JSONObject();
         json.put("players", playersJson);
-        
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        scheduler.runTaskAsynchronously(plugin, new Runnable() {
-        	@Override
-        	public void run() {
-        		try {
-                    File file = new File(plugin.getConfig().getString("markerFile"));
-                    BufferedWriter output = new BufferedWriter(new FileWriter(file));
-                    output.write(json.toJSONString());
-                    output.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+        if (plugin.isDisabled()) {
+            writeFile(json);
+        } else {
+            BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+            scheduler.runTaskAsynchronously(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    writeFile(json);
                 }
-        	}
-        });
+            });
+        }
+    }
+    
+    public void writeFile(JSONObject json) {
+        try {
+            File file = new File(plugin.getConfig().getString("markerFile"));
+            BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            output.write(json.toJSONString());
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -28,6 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class MapToolsPlugin extends JavaPlugin {
     private Logger log;
+    private boolean disabled=true;
 
     @Override
     public void onEnable() {
@@ -37,6 +38,7 @@ public class MapToolsPlugin extends JavaPlugin {
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
         saveConfig();
+        disabled=false;
 
         MarkerUpdateTask task = new MarkerUpdateTask(this);
         task.runTaskTimer(this, 20, 20 * getConfig().getInt("interval", 5));
@@ -44,10 +46,15 @@ public class MapToolsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        disabled=true;
         // write an empty json file
     	Collection<Player> players = new LinkedList<Player>();
         new MarkerUpdateTask(this).writePlayers(players);
 
         log.info("Plugin disabled!");
+    }
+    
+    public boolean isDisabled() {
+        return disabled;
     }
 }
